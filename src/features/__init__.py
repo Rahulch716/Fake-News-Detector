@@ -1,0 +1,2 @@
+from .fake_news_classifier import FakeNewsClassifier
+from .feature_extractor import FeatureExtractor

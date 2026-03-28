@@ -1,0 +1,32 @@
+app_name: "Fake News Detector API"
+version: "1.0.0"
+debug: false
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins:
+    - "*"
+
+model:
+  ml_model_path: "models/classifier.pkl"
+  vectorizer_path: "models/vectorizer.pkl"
+  confidence_threshold: 0.6
+
+llm:
+  provider: "openai"
+  model: "gpt-3.5-turbo"
+  temperature: 0.3
+  max_tokens: 500
+  api_key: ""
+
+nlp:
+  use_spacy: true
+  language: "en"
+  remove_stopwords: true
+  remove_punctuation: true
+  lowercase: true
+
+preprocessing:
+  max_text_length: 10000
+  min_text_length: 10

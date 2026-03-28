@@ -1,0 +1,122 @@
+[
+  {
+    "text": "Scientists at NASA have confirmed the discovery of water on Mars using the Perseverance rover's instruments.",
+    "label": "real"
+  },
+  {
+    "text": "The World Health Organization reported that global vaccination rates have increased by 15% in the past year.",
+    "label": "real"
+  },
+  {
+    "text": "Federal Reserve announces interest rate decision following two-day policy meeting",
+    "label": "real"
+  },
+  {
+    "text": "Researchers discover new species of deep-sea fish in the Pacific Ocean during underwater expedition.",
+    "label": "real"
+  },
+  {
+    "text": "Breaking: Government signs international climate agreement to reduce carbon emissions by 2030",
+    "label": "real"
+  },
+  {
+    "text": "Local high school football team wins state championship in overtime thriller",
+    "label": "real"
+  },
+  {
+    "text": "Tech giant announces new smartphone with improved battery life and camera technology",
+    "label": "real"
+  },
+  {
+    "text": "United Nations condemns violence in conflict zone, calls for peaceful resolution",
+    "label": "real"
+  },
+  {
+    "text": "Stock market closes at record high following positive economic reports",
+    "label": "real"
+  },
+  {
+    "text": "Medical study shows regular exercise improves heart health and reduces disease risk",
+    "label": "real"
+  },
+  {
+    "text": "Climate scientists report 2023 as hottest year on record with rising global temperatures",
+    "label": "real"
+  },
+  {
+    "text": "International space station crew successfully completes spacewalk for repairs",
+    "label": "real"
+  },
+  {
+    "text": "Education department announces new funding for public schools in underprivileged areas",
+    "label": "real"
+  },
+  {
+    "text": "Archaeologists discover ancient artifacts during construction project in downtown area",
+    "label": "real"
+  },
+  {
+    "text": "Weather service warns of approaching storm system, advises residents to prepare",
+    "label": "real"
+  },
+  {
+    "text": "You won't believe what this celebrity did! You won't believe this shocking secret!",
+    "label": "fake"
+  },
+  {
+    "text": "SHOCKING: They don't want you to know the truth about what the government is hiding!",
+    "label": "fake"
+  },
+  {
+    "text": "Clickbait: 10 Things They Don't Want You To Know About This Secret Scandal!",
+    "label": "fake"
+  },
+  {
+    "text": "BREAKING: Secret exposed! What they are hiding from you will blow your mind!",
+    "label": "fake"
+  },
+  {
+    "text": "URGENT: You need to share this before they delete it! Wake up sheeple!",
+    "label": "fake"
+  },
+  {
+    "text": "This one trick will change everything! Doctors hate this secret remedy!",
+    "label": "fake"
+  },
+  {
+    "text": "Unverified conspiracy theory goes viral claiming moon landing was faked",
+    "label": "fake"
+  },
+  {
+    "text": "FAKE NEWS: This major news network caught spreading lies about election!",
+    "label": "fake"
+  },
+  {
+    "text": "SHOCKING DISCOVERY: Scientists reveal secret that could change history forever!",
+    "label": "fake"
+  },
+  {
+    "text": "Must share! This celebrity secret will absolutely shock you!",
+    "label": "fake"
+  },
+  {
+    "text": "They don't want you to know this one simple trick for wealth!",
+    "label": "fake"
+  },
+  {
+    "text": "HOAX ALERT: Viral message claims false health cure spreading online",
+    "label": "fake"
+  },
+  {
+    "text": "SECRET EXPOSED: What elite don't want you to know will change everything!",
+    "label": "fake"
+  },
+  {
+    "text": "Breaking: Fake news article spread through social media manipulates public opinion",
+    "label": "fake"
+  },
+  {
+    "text": "YOU WON'T BELIEVE THIS: Secret government program exposed by whistleblower!",
+    "label": "fake"
+  }
+]
