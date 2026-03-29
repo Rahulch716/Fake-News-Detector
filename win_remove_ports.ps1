@@ -1,4 +1,4 @@
-$ports = @(8000, 5000)
+$ports = @(8000, 5050)
 
 foreach ($port in $ports) {
     Write-Host "Checking port $port..."

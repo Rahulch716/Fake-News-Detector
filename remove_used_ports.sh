@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of ports you want to clear
-PORTS=(8000 5000)
+PORTS=(8000 5050)
 
 echo "🔍 Checking and clearing ports: ${PORTS[@]}"
 

@@ -122,7 +122,7 @@ llm:
 python main.py
 ```
 
-**Terminal 2 - UI (Port 5000):**
+**Terminal 2 - UI (Port 5050):**
 ```bash
 cd ui
 python app/app.py
@@ -149,9 +149,9 @@ uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 ## Access the Application
 
 - **Backend API**: http://localhost:8000
-- **UI**: http://localhost:5000
+- **UI**: http://localhost:5050
 
-Open http://localhost:5000 in your browser to use the Fake News Detector.
+Open http://localhost:5050 in your browser to use the Fake News Detector.
 
 ## Configuration
 
@@ -205,7 +205,7 @@ uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 python main.py > server.log 2>&1 &
 ```
 
-### Start UI (Port 5000)
+### Start UI (Port 5050)
 
 ```bash
 cd ui
@@ -217,7 +217,7 @@ cd ui && python app/app.py > ui.log 2>&1 &
 
 The API will be available at:
 - **Backend**: http://localhost:8000
-- **UI**: http://localhost:5000
+- **UI**: http://localhost:5050
 
 ### Quick Start (Both Servers)
 
@@ -229,7 +229,7 @@ python main.py
 cd ui && python app/app.py
 ```
 
-Then open http://localhost:5000 in your browser.
+Then open http://localhost:5050 in your browser.
 
 ## API Endpoints
 
@@ -553,7 +553,7 @@ The project includes a user-friendly Flask UI that consumes the backend API.
 
 ### Access the UI
 
-Open your browser and navigate to: **http://localhost:5000**
+Open your browser and navigate to: **http://localhost:5050**
 
 ### UI Features
 

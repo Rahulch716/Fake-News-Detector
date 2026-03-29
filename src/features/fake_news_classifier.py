@@ -21,7 +21,9 @@ from pathlib import Path
 
 
 class FakeNewsClassifier:
-    def __init__(self, model_path: Optional[str] = None, vectorizer_path: Optional[str] = None):
+    def __init__(
+        self, model_path: Optional[str] = None, vectorizer_path: Optional[str] = None
+    ):
         self.model_path = model_path or "models/classifier.pkl"
         self.vectorizer_path = vectorizer_path or "models/vectorizer.pkl"
         self.model = None
@@ -40,7 +42,7 @@ class FakeNewsClassifier:
 
     def create_pipeline(self, algorithm: str = "logistic") -> Pipeline:
         vectorizer = TfidfVectorizer(
-            max_features=5000,
+            max_features=5050,
             ngram_range=(1, 2),
             min_df=1,
             max_df=0.95,
@@ -97,15 +99,27 @@ class FakeNewsClassifier:
         y_pred = pipeline.predict(X_test)
         metrics = {
             "accuracy": float(accuracy_score(y_test, y_pred)),
-            "precision": float(precision_score(y_test, y_pred, average="weighted", zero_division=0)),
-            "recall": float(recall_score(y_test, y_pred, average="weighted", zero_division=0)),
-            "f1_score": float(f1_score(y_test, y_pred, average="weighted", zero_division=0)),
-            "classification_report": classification_report(y_test, y_pred, zero_division=0),
+            "precision": float(
+                precision_score(y_test, y_pred, average="weighted", zero_division=0)
+            ),
+            "recall": float(
+                recall_score(y_test, y_pred, average="weighted", zero_division=0)
+            ),
+            "f1_score": float(
+                f1_score(y_test, y_pred, average="weighted", zero_division=0)
+            ),
+            "classification_report": classification_report(
+                y_test, y_pred, zero_division=0
+            ),
             "confusion_matrix": confusion_matrix(y_test, y_pred).tolist(),
         }
         cv_scores = cross_val_score(pipeline, X, y, cv=5)
-        metrics["cv_accuracy_mean"] = float(cv_scores.mean()) if not np.isnan(cv_scores.mean()) else 0.0
-        metrics["cv_accuracy_std"] = float(cv_scores.std()) if not np.isnan(cv_scores.std()) else 0.0
+        metrics["cv_accuracy_mean"] = (
+            float(cv_scores.mean()) if not np.isnan(cv_scores.mean()) else 0.0
+        )
+        metrics["cv_accuracy_std"] = (
+            float(cv_scores.std()) if not np.isnan(cv_scores.std()) else 0.0
+        )
         self.model = pipeline.named_steps["classifier"]
         self.vectorizer = pipeline.named_steps["vectorizer"]
         self.is_trained = True
