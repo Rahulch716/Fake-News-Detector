@@ -16,25 +16,36 @@ This project provides a REST API for fake news detection that combines multiple 
 ```
 Fake-News-Detector/
 ├── config.yaml              # Configuration file
-├── requirements.txt         # Python dependencies
-├── main.py                  # Entry point
+├── requirements.txt         # Python dependencies (Backend)
+├── main.py                  # Backend entry point
 ├── data/                    # Sample/training data
 ├── models/                  # Saved ML models
-└── src/
-    ├── main.py              # FastAPI application
-    ├── config.py            # Configuration loader
-    ├── api/
-    │   ├── routes.py        # REST API endpoints
-    │   └── schemas.py       # Pydantic request/response models
-    ├── preprocessing/
-    │   └── text_preprocessor.py   # NLTK/spaCy text cleaning
-    ├── features/
-    │   ├── fake_news_classifier.py  # ML classifier
-    │   └── feature_extractor.py     # Feature extraction
-    ├── models/
-    │   └── llm_detector.py   # LLM + rule-based detection
-    └── utils/
-        └── data_loader.py   # Data loading utilities
+├── src/                     # Backend source
+│   ├── main.py              # FastAPI application
+│   ├── config.py            # Configuration loader
+│   ├── api/
+│   │   ├── routes.py        # REST API endpoints
+│   │   └── schemas.py       # Pydantic request/response models
+│   ├── preprocessing/
+│   │   └── text_preprocessor.py   # NLTK/spaCy text cleaning
+│   ├── features/
+│   │   ├── fake_news_classifier.py  # ML classifier
+│   │   └── feature_extractor.py     # Feature extraction
+│   ├── models/
+│   │   └── llm_detector.py   # LLM + rule-based detection
+│   └── utils/
+│       └── data_loader.py   # Data loading utilities
+└── ui/                      # Frontend (Flask)
+    ├── app/
+    │   └── app.py           # Flask application
+    ├── templates/
+    │   └── index.html       # Main UI template
+    ├── static/
+    │   ├── css/
+    │   │   └── style.css    # Styling
+    │   └── js/
+    │       └── app.js       # JavaScript
+    └── requirements.txt     # UI dependencies
 ```
 
 ## Features
@@ -71,33 +82,76 @@ Algorithms supported:
 - LLM-based analysis (OpenAI GPT)
 - Rule-based heuristics (clickbait detection)
 
-## Installation
+## Installation & Setup
 
-1. Clone the repository:
+### Step 1: Clone the Repository
 ```bash
 cd Fake-News-Detector
 ```
 
-2. Create a virtual environment (optional but recommended):
+### Step 2: Create Virtual Environment
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies:
+### Step 3: Install Backend Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Download spaCy model:
+### Step 4: Download spaCy Model
 ```bash
 python -m spacy download en_core_web_sm
 ```
 
-5. (Optional) Download NLTK data:
-```bash
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')"
+
+### Step 5: (Optional) Configure LLM
+Edit `config.yaml` and add your OpenAI API key to enable LLM-based detection:
+```yaml
+llm:
+  api_key: "YOUR-OPENAI-API-KEY"
 ```
+
+## Running the Application
+
+### Option 1: Run Both Servers Manually
+
+**Terminal 1 - Backend (Port 8000):**
+```bash
+python main.py
+```
+
+**Terminal 2 - UI (Port 5000):**
+```bash
+cd ui
+python app/app.py
+```
+
+### Option 2: Run in Background
+
+**Start Backend:**
+```bash
+python main.py > backend.log 2>&1 &
+```
+
+**Start UI:**
+```bash
+cd ui
+python app/app.py > ui.log 2>&1 &
+```
+
+### Option 3: Using uvicorn (Backend Only)
+```bash
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+## Access the Application
+
+- **Backend API**: http://localhost:8000
+- **UI**: http://localhost:5000
+
+Open http://localhost:5000 in your browser to use the Fake News Detector.
 
 ## Configuration
 
@@ -136,36 +190,58 @@ preprocessing:
   min_text_length: 10
 ```
 
-## Running the Server
+## Running the Application
 
-### Development Mode (with auto-reload):
+### Start Backend (Port 8000)
+
 ```bash
+# Option 1: Using main.py
 python main.py
-```
 
-### Using uvicorn directly:
-```bash
+# Option 2: Using uvicorn
 uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
-```
 
-### In background:
-```bash
+# Option 3: In background
 python main.py > server.log 2>&1 &
 ```
 
-The API will be available at `http://localhost:8000`
+### Start UI (Port 5000)
+
+```bash
+cd ui
+python app/app.py
+
+# Or in background
+cd ui && python app/app.py > ui.log 2>&1 &
+```
+
+The API will be available at:
+- **Backend**: http://localhost:8000
+- **UI**: http://localhost:5000
+
+### Quick Start (Both Servers)
+
+```bash
+# Terminal 1 - Backend
+python main.py
+
+# Terminal 2 - UI
+cd ui && python app/app.py
+```
+
+Then open http://localhost:5000 in your browser.
 
 ## API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | API information |
-| `/api/v1/health` | GET | Health check |
-| `/api/v1/detect` | POST | Detect fake news |
-| `/api/v1/train` | POST | Train ML model |
-| `/api/v1/batch-detect` | POST | Batch detection |
-| `/api/v1/extract-features` | POST | Extract text features |
-| `/api/v1/model-info` | GET | Model information |
+| Endpoint                   | Method | Description           |
+| -------------------------- | ------ | --------------------- |
+| `/`                        | GET    | API information       |
+| `/api/v1/health`           | GET    | Health check          |
+| `/api/v1/detect`           | POST   | Detect fake news      |
+| `/api/v1/train`            | POST   | Train ML model        |
+| `/api/v1/batch-detect`     | POST   | Batch detection       |
+| `/api/v1/extract-features` | POST   | Extract text features |
+| `/api/v1/model-info`       | GET    | Model information     |
 
 ### Example Usage
 
@@ -471,13 +547,42 @@ curl -X POST http://localhost:8000/api/v1/batch-detect \
 }
 ```
 
-## Using with UI
+## Using the UI
 
-The backend is designed to work with any UI. To integrate:
+The project includes a user-friendly Flask UI that consumes the backend API.
 
-1. Start the server: `python main.py`
-2. Make HTTP requests to `http://localhost:8000/api/v1/detect`
-3. Pass JSON body with `text` field and optional `use_ml`, `use_llm`, `use_rules` flags
+### Access the UI
+
+Open your browser and navigate to: **http://localhost:5000**
+
+### UI Features
+
+1. **Detect Tab** - Analyze single news articles
+   - Enter text and choose detection methods (ML, Rule-based, LLM)
+   - View verdict, confidence, and detailed results
+
+2. **Batch Detect Tab** - Analyze multiple articles
+   - Enter multiple articles (one per line)
+   - View all results in a list
+
+3. **Train Tab** - Train the ML model
+   - Enter training data in format: `text|real` or `text|fake` (one per line)
+   - Choose algorithm and train
+   - View accuracy, precision, recall, F1 score
+
+4. **Features Tab** - Extract linguistic features
+   - Enter text to analyze
+   - View 20+ extracted features
+
+### Model Status
+
+The bottom of the UI shows:
+- ML Model status (Loaded/Not Loaded)
+- LLM availability (Available/Not Available)
+
+### API Proxy
+
+The Flask UI proxies all requests to the FastAPI backend at http://localhost:8000. Ensure the backend is running before using the UI.
 
 ## How It Works
 
@@ -502,6 +607,7 @@ The backend is designed to work with any UI. To integrate:
 
 ## Dependencies
 
+### Backend
 - **fastapi** - Modern Python web framework
 - **uvicorn** - ASGI server
 - **scikit-learn** - ML library
@@ -512,6 +618,20 @@ The backend is designed to work with any UI. To integrate:
 - **pydantic** - Data validation
 - **joblib** - Model serialization
 - **pyyaml** - Config parsing
+
+### UI
+- **flask** - Web framework
+- **requests** - HTTP client
+
+## Training Data
+
+Sample training data is included in the `data/` folder:
+
+- `data/sample_news.json` - 30 samples (15 real, 15 fake)
+- `data/sample_news.csv` - 30 samples in CSV format
+- `data/training_data.csv` - 170 samples for model training
+
+Format for training: `text|real` or `text|fake` (one per line)
 
 ## License
 

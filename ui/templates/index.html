@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="18" stroke="#4F46E5" stroke-width="2"/>
+                    <path d="M12 20L18 26L28 14" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1>Fake News Detector</h1>
+            </div>
+            <div class="status-indicator" id="apiStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="detect">Detect</button>
+            <button class="tab-btn" data-tab="batch">Batch Detect</button>
+            <button class="tab-btn" data-tab="train">Train Model</button>
+            <button class="tab-btn" data-tab="features">Features</button>
+        </nav>
+
+        <main>
+            <!-- Detect Tab -->
+            <section id="detect-tab" class="tab-content active">
+                <div class="card">
+                    <h2>Check News Article</h2>
+                    <p class="description">Enter a news article or headline to analyze if it's real or fake.</p>
+                    
+                    <div class="form-group">
+                        <textarea 
+                            id="newsText" 
+                            placeholder="Paste or type your news article here..."
+                            rows="6"
+                        ></textarea>
+                    </div>
+
+                    <div class="options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="useML" checked>
+                            <span>ML Model</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="useRules" checked>
+                            <span>Rule-Based</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="useLLM">
+                            <span>LLM Analysis</span>
+                        </label>
+                    </div>
+
+                    <button class="btn btn-primary" id="detectBtn">
+                        <span class="btn-text">Analyze</span>
+                        <span class="btn-loading" style="display: none;">Analyzing...</span>
+                    </button>
+                </div>
+
+                <div class="result-card" id="detectResult" style="display: none;">
+                    <div class="result-header">
+                        <div class="verdict" id="verdictBadge">
+                            <span class="verdict-text"></span>
+                        </div>
+                        <div class="confidence">
+                            <span class="confidence-label">Confidence:</span>
+                            <span class="confidence-value" id="confidenceValue">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-details">
+                        <div class="detail-section">
+                            <h3>ML Prediction</h3>
+                            <p id="mlPrediction">-</p>
+                        </div>
+                        <div class="detail-section">
+                            <h3>Rule-Based Analysis</h3>
+                            <p id="ruleVerdict">-</p>
+                            <div class="red-flags" id="redFlags"></div>
+                        </div>
+                        <div class="detail-section" id="llmSection" style="display: none;">
+                            <h3>LLM Analysis</h3>
+                            <p id="llmAnalysis">-</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Batch Detect Tab -->
+            <section id="batch-tab" class="tab-content">
+                <div class="card">
+                    <h2>Batch Detection</h2>
+                    <p class="description">Analyze multiple news articles at once.</p>
+                    
+                    <div class="form-group">
+                        <textarea 
+                            id="batchText" 
+                            placeholder="Enter multiple articles (one per line)..."
+                            rows="8"
+                        ></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" id="batchDetectBtn">
+                        <span class="btn-text">Analyze All</span>
+                        <span class="btn-loading" style="display: none;">Analyzing...</span>
+                    </button>
+                </div>
+
+                <div class="result-card" id="batchResult" style="display: none;">
+                    <h3>Results (<span id="batchCount">0</span> articles)</h3>
+                    <div class="batch-results" id="batchResults"></div>
+                </div>
+            </section>
+
+            <!-- Train Tab -->
+            <section id="train-tab" class="tab-content">
+                <div class="card">
+                    <h2>Train Model</h2>
+                    <p class="description">Train the ML classifier with your own data.</p>
+                    
+                    <div class="form-group">
+                        <label>Training Texts (one per line, format: text|real or text|fake)</label>
+                        <textarea 
+                            id="trainText" 
+                            placeholder="NASA announces new discovery|real
+Clickbait: Secret exposed!|fake
+Stock market closes higher|real
+SHOCKING: They hide the truth!|fake"
+                            rows="10"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Algorithm</label>
+                        <select id="algorithm">
+                            <option value="logistic">Logistic Regression</option>
+                            <option value="random_forest">Random Forest</option>
+                            <option value="naive_bayes">Naive Bayes</option>
+                            <option value="svm">SVM</option>
+                            <option value="gradient_boost">Gradient Boosting</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" id="trainBtn">
+                        <span class="btn-text">Train Model</span>
+                        <span class="btn-loading" style="display: none;">Training...</span>
+                    </button>
+                </div>
+
+                <div class="result-card" id="trainResult" style="display: none;">
+                    <h3>Training Results</h3>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <span class="metric-label">Accuracy</span>
+                            <span class="metric-value" id="accuracy">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Precision</span>
+                            <span class="metric-value" id="precision">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Recall</span>
+                            <span class="metric-value" id="recall">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">F1 Score</span>
+                            <span class="metric-value" id="f1Score">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">CV Accuracy (Mean)</span>
+                            <span class="metric-value" id="cvMean">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">CV Accuracy (Std)</span>
+                            <span class="metric-value" id="cvStd">-</span>
+                        </div>
+                    </div>
+                    <div class="classification-report">
+                        <h4>Classification Report</h4>
+                        <pre id="classificationReport"></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Tab -->
+            <section id="features-tab" class="tab-content">
+                <div class="card">
+                    <h2>Extract Features</h2>
+                    <p class="description">Extract linguistic features from text for analysis.</p>
+                    
+                    <div class="form-group">
+                        <textarea 
+                            id="featureText" 
+                            placeholder="Enter text to extract features..."
+                            rows="6"
+                        ></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" id="extractBtn">
+                        <span class="btn-text">Extract Features</span>
+                        <span class="btn-loading" style="display: none;">Extracting...</span>
+                    </button>
+                </div>
+
+                <div class="result-card" id="featureResult" style="display: none;">
+                    <h3>Extracted Features</h3>
+                    <div class="features-grid" id="featuresGrid"></div>
+                </div>
+            </section>
+
+            <!-- Model Info Section -->
+            <section class="model-info-section">
+                <div class="model-card">
+                    <h3>Model Status</h3>
+                    <div class="model-stats">
+                        <div class="stat">
+                            <span class="stat-label">ML Model</span>
+                            <span class="stat-value" id="mlModelStatus">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">LLM Available</span>
+                            <span class="stat-value" id="llmStatus">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Fake News Detector &copy; 2024 | Backend API: <span id="apiVersion">-</span></p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
