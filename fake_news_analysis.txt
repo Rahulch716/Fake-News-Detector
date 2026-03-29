@@ -1,0 +1,135 @@
+================================================================================
+                    FAKE NEWS DETECTOR - ANALYSIS REPORT
+================================================================================
+
+Generated: 2026-03-29
+
+================================================================================
+                         REAL NEWS PATTERNS
+================================================================================
+
+Real news articles typically exhibit the following characteristics:
+
+1. SOURCE CREDIBILITY
+   - Published by established institutions (NASA, WHO, IMF, UN, CDC)
+   - Major corporations (Apple, Google, Amazon, Pfizer)
+   - Government agencies and scientific journals
+   - Professional news organizations
+
+2. LANGUAGE STYLE
+   - Formal, professional tone
+   - Measured, factual language
+   - Specific details and data points
+   - Proper attribution and sourcing
+
+3. STRUCTURAL ELEMENTS
+   - Clear headlines with specific information
+   - Balanced sentence lengths
+   - Proper punctuation usage
+   - Low use of exclamation marks
+
+4. CONTENT CHARACTERISTICS
+   - Concrete entities (organizations, locations, dates)
+   - Evidence-based claims
+   - Multiple perspectives considered
+   - Neutral sentiment
+
+5. EXAMPLES FROM TRAINING DATA
+   ---------------------------------------------------------------------------
+   "NASA confirms water ice deposits found on Mars surface using radar data"
+   "International Monetary Fund predicts 3% global economic growth for next year"
+   "World Health Organization declares end to recent disease outbreak"
+   "Federal Reserve holds interest rates steady at current level"
+   "Scientists publish study on climate change impact on ocean temperatures"
+   ---------------------------------------------------------------------------
+
+================================================================================
+                         FAKE NEWS PATTERNS
+================================================================================
+
+Fake news articles typically exhibit the following characteristics:
+
+1. SENSATIONAL LANGUAGE
+   - Excessive use of caps (SHOCKING, BREAKING, URGENT)
+   - Multiple exclamation marks
+   - Emotional triggers (fear, anger, excitement)
+   - Words like "SECRET", "HIDDEN", "EXPOSED"
+
+2. CLICKBAIT TECHNIQUES
+   - Vague, attention-grabbing headlines
+   - "They don't want you to know"
+   - "You won't believe this"
+   - Promise of hidden information
+
+3. STRUCTURAL ELEMENTS
+   - Short, punchy sentences
+   - Poor readability scores
+   - High special character ratio
+   - Excessive punctuation
+
+4. CONTENT CHARACTERISTICS
+   - Conspiracy theories
+   - Unverified claims
+   - Emotional manipulation
+   - Negative sentiment bias
+   - Low entity density (few proper nouns)
+
+5. EXAMPLES FROM TRAINING DATA
+   ---------------------------------------------------------------------------
+   "SHOCKING discovery that changes everything! Doctors hate this!"
+   "They don't want you to know this one simple trick for wealth!"
+   "SECRET EXPOSED: What the elite don't want you to know!"
+   "Wake up sheeple! The truth is being suppressed!"
+   "This one weird trick will make you rich overnight!"
+   ---------------------------------------------------------------------------
+
+================================================================================
+                         DETECTION FEATURES
+================================================================================
+
+The classifier uses 20 text features to distinguish real from fake:
+
+1. LENGTH FEATURES
+   - text_length: Total character count
+   - word_count: Total words
+   - sentence_count: Total sentences
+   - avg_word_length: Average word length
+   - avg_sentence_length: Average words per sentence
+
+2. FORMATTING FEATURES
+   - capital_ratio: Percentage of capital letters
+   - uppercase_word_count: Words in all caps
+   - digit_ratio: Percentage of numbers
+   - special_char_ratio: Non-alphanumeric characters
+
+3. PUNCTUATION FEATURES
+   - exclamation_count: Number of !
+   - question_count: Number of ?
+   - quote_count: Quotation marks
+   - punctuation_ratio: Total punctuation
+
+4. COMPLEXITY FEATURES
+   - readability_score: Flesch-Kincaid score
+   - unique_word_ratio: Vocabulary diversity
+
+5. SOCIAL FEATURES
+   - url_count: Links present
+   - mention_count: @mentions
+   - hashtag_count: #hashtags
+
+6. SEMANTIC FEATURES
+   - sentiment_polarity: Positive vs negative words
+   - entity_density: Proper noun ratio
+
+================================================================================
+                              CONCLUSION
+================================================================================
+
+Real news tends to be: Formal, sourced, specific, measured, evidence-based
+Fake news tends to be: Sensational, vague, emotional, inflammatory, unsubstantiated
+
+The model achieves high accuracy using TF-IDF vectorization with n-grams
+(1-2 word combinations) combined with machine learning classifiers like
+Logistic Regression, Random Forest, and Naive Bayes.
+
+================================================================================
