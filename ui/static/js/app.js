@@ -184,7 +184,7 @@ function initBatchDetect() {
             });
             
             const result = await response.json();
-            displayBatchResult(result);
+            displayBatchResult(result, texts);
         } catch (error) {
             alert('Error: ' + error.message);
         } finally {
@@ -193,7 +193,7 @@ function initBatchDetect() {
     });
 }
 
-function displayBatchResult(result) {
+function displayBatchResult(result, texts) {
     const resultCard = document.getElementById('batchResult');
     const batchCount = document.getElementById('batchCount');
     const batchResults = document.getElementById('batchResults');
@@ -202,7 +202,7 @@ function displayBatchResult(result) {
     batchCount.textContent = result.results ? result.results.length : 0;
     
     if (result.results && result.results.length > 0) {
-        const originalTexts = text.split('\n').filter(t => t.trim());
+        const originalTexts = texts;
         batchResults.innerHTML = result.results.map((r, i) => {
             const prediction = r.prediction || 'unknown';
             const confidence = Math.round((r.confidence || 0) * 100);

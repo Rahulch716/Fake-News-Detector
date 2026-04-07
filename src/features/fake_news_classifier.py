@@ -142,7 +142,7 @@ class FakeNewsClassifier:
             proba = self.model.predict_proba(X)[0]
             confidence = max(proba)
         elif hasattr(self.model, "decision_function"):
-            decision = self.decision_function(X)[0]
+            decision = self.model.decision_function(X)[0]
             confidence = 1 / (1 + np.exp(-decision))
         else:
             confidence = 1.0
