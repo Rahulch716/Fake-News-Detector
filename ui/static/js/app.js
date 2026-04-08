@@ -1,4 +1,6 @@
 const API_BASE = '';
+const LLM_PREVIEW_REASON_COUNT = 2;
+const LLM_EVIDENCE_PREVIEW_LENGTH = 160;
 
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
@@ -85,6 +87,7 @@ function initDetect() {
             return;
         }
 
+        clearDetectResult();
         setButtonLoading(btn, true);
         
         try {
@@ -100,13 +103,65 @@ function initDetect() {
             });
             
             const result = await response.json();
+            if (!response.ok || result.error || result.detail) {
+                throw new Error(result.detail || result.error || 'Detection failed');
+            }
             displayDetectResult(result);
         } catch (error) {
+            clearDetectResult();
             alert('Error: ' + error.message);
         } finally {
             setButtonLoading(btn, false);
         }
     });
+}
+
+function clearDetectResult() {
+    const resultCard = document.getElementById('detectResult');
+    const verdictBadge = document.getElementById('verdictBadge');
+    const confidenceValue = document.getElementById('confidenceValue');
+    const mlPrediction = document.getElementById('mlPrediction');
+    const ruleVerdict = document.getElementById('ruleVerdict');
+    const redFlagsContainer = document.getElementById('redFlags');
+    const llmSection = document.getElementById('llmSection');
+    const llmToggle = document.getElementById('llmToggle');
+    const llmPreview = document.getElementById('llmPreview');
+    const llmDetails = document.getElementById('llmDetails');
+    const llmVerdict = document.getElementById('llmVerdict');
+    const llmConfidence = document.getElementById('llmConfidence');
+    const llmReasons = document.getElementById('llmReasons');
+    const llmReasonsBlock = document.getElementById('llmReasonsBlock');
+    const llmRedFlags = document.getElementById('llmRedFlags');
+    const llmRedFlagsBlock = document.getElementById('llmRedFlagsBlock');
+    const llmEvidence = document.getElementById('llmEvidence');
+    const llmEvidenceBlock = document.getElementById('llmEvidenceBlock');
+    const llmRawBlock = document.getElementById('llmRawBlock');
+    const llmAnalysis = document.getElementById('llmAnalysis');
+
+    resultCard.style.display = 'none';
+    verdictBadge.className = 'verdict';
+    verdictBadge.querySelector('.verdict-text').textContent = '';
+    confidenceValue.textContent = '0%';
+    mlPrediction.textContent = '-';
+    ruleVerdict.textContent = '-';
+    redFlagsContainer.innerHTML = '';
+    llmSection.style.display = 'none';
+    llmSection.dataset.expanded = 'false';
+    llmToggle.style.display = 'none';
+    llmToggle.textContent = 'Show More';
+    llmPreview.textContent = '-';
+    llmDetails.style.display = 'none';
+    llmVerdict.className = 'llm-stat-value llm-verdict';
+    llmVerdict.textContent = '-';
+    llmConfidence.textContent = '-';
+    llmReasons.innerHTML = '';
+    llmReasonsBlock.style.display = 'none';
+    llmRedFlags.innerHTML = '';
+    llmRedFlagsBlock.style.display = 'none';
+    llmEvidence.textContent = '-';
+    llmEvidenceBlock.style.display = 'none';
+    llmRawBlock.style.display = 'none';
+    llmAnalysis.textContent = '-';
 }
 
 function displayDetectResult(result) {
@@ -117,6 +172,18 @@ function displayDetectResult(result) {
     const ruleVerdict = document.getElementById('ruleVerdict');
     const redFlagsContainer = document.getElementById('redFlags');
     const llmSection = document.getElementById('llmSection');
+    const llmToggle = document.getElementById('llmToggle');
+    const llmPreview = document.getElementById('llmPreview');
+    const llmDetails = document.getElementById('llmDetails');
+    const llmVerdict = document.getElementById('llmVerdict');
+    const llmConfidence = document.getElementById('llmConfidence');
+    const llmReasons = document.getElementById('llmReasons');
+    const llmReasonsBlock = document.getElementById('llmReasonsBlock');
+    const llmRedFlags = document.getElementById('llmRedFlags');
+    const llmRedFlagsBlock = document.getElementById('llmRedFlagsBlock');
+    const llmEvidence = document.getElementById('llmEvidence');
+    const llmEvidenceBlock = document.getElementById('llmEvidenceBlock');
+    const llmRawBlock = document.getElementById('llmRawBlock');
     const llmAnalysis = document.getElementById('llmAnalysis');
     
     resultCard.style.display = 'block';
@@ -147,14 +214,150 @@ function displayDetectResult(result) {
         redFlagsContainer.innerHTML = '';
     }
     
-    if (result.llm_analysis && result.llm_analysis.available) {
-        llmSection.style.display = 'block';
-        llmAnalysis.textContent = JSON.stringify(result.llm_analysis, null, 2);
-    } else {
-        llmSection.style.display = 'none';
-    }
+    renderLlmAnalysis(
+        result.llm_analysis,
+        {
+            llmSection,
+            llmToggle,
+            llmPreview,
+            llmDetails,
+            llmVerdict,
+            llmConfidence,
+            llmReasons,
+            llmReasonsBlock,
+            llmRedFlags,
+            llmRedFlagsBlock,
+            llmEvidence,
+            llmEvidenceBlock,
+            llmRawBlock,
+            llmAnalysis
+        }
+    );
     
     resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderLlmAnalysis(llmResult, elements) {
+    if (!llmResult) {
+        elements.llmSection.style.display = 'none';
+        return;
+    }
+
+    elements.llmSection.style.display = 'block';
+    elements.llmSection.dataset.expanded = 'false';
+
+    if (llmResult.error) {
+        elements.llmToggle.style.display = 'none';
+        elements.llmPreview.textContent = 'LLM analysis failed.';
+        elements.llmDetails.style.display = 'block';
+        elements.llmVerdict.className = 'llm-stat-value llm-verdict uncertain';
+        elements.llmVerdict.textContent = 'Error';
+        elements.llmConfidence.textContent = '-';
+        elements.llmReasonsBlock.style.display = 'none';
+        elements.llmRedFlagsBlock.style.display = 'none';
+        elements.llmEvidenceBlock.style.display = 'block';
+        elements.llmEvidence.textContent = llmResult.error;
+        elements.llmRawBlock.style.display = 'none';
+        return;
+    }
+
+    const verdict = (llmResult.verdict || 'uncertain').toLowerCase();
+    const confidence = typeof llmResult.confidence === 'number'
+        ? `${Math.round(llmResult.confidence * 100)}%`
+        : '-';
+    const reasons = Array.isArray(llmResult.reasons) ? llmResult.reasons : [];
+    const redFlags = Array.isArray(llmResult.red_flags) ? llmResult.red_flags : [];
+    const evidence = llmResult.supporting_evidence || '';
+    const hasStructuredData =
+        Object.prototype.hasOwnProperty.call(llmResult, 'verdict') ||
+        Object.prototype.hasOwnProperty.call(llmResult, 'confidence') ||
+        reasons.length > 0 ||
+        redFlags.length > 0 ||
+        Boolean(evidence);
+    const previewText = buildLlmPreview(verdict, reasons, redFlags, evidence);
+    const shouldCollapse = reasons.length > LLM_PREVIEW_REASON_COUNT || evidence.length > LLM_EVIDENCE_PREVIEW_LENGTH || redFlags.length > 0;
+
+    elements.llmVerdict.className = `llm-stat-value llm-verdict ${verdict}`;
+    elements.llmVerdict.textContent = formatLabel(verdict);
+    elements.llmConfidence.textContent = confidence;
+    elements.llmPreview.textContent = previewText;
+
+    elements.llmReasonsBlock.style.display = reasons.length ? 'block' : 'none';
+    elements.llmReasons.innerHTML = reasons.map(reason => `<li>${escapeHtml(reason)}</li>`).join('');
+
+    elements.llmRedFlagsBlock.style.display = redFlags.length ? 'block' : 'none';
+    elements.llmRedFlags.innerHTML = redFlags.map(flag =>
+        `<span class="red-flag">${escapeHtml(flag)}</span>`
+    ).join('');
+
+    elements.llmEvidenceBlock.style.display = evidence ? 'block' : 'none';
+    elements.llmEvidence.textContent = evidence || '-';
+
+    elements.llmRawBlock.style.display = hasStructuredData ? 'none' : 'block';
+    elements.llmAnalysis.textContent = JSON.stringify(llmResult, null, 2);
+    elements.llmToggle.style.display = shouldCollapse ? 'inline-flex' : 'none';
+    elements.llmToggle.textContent = 'Show More';
+    elements.llmDetails.style.display = shouldCollapse ? 'none' : 'block';
+    elements.llmToggle.onclick = shouldCollapse
+        ? () => toggleLlmDetails(elements.llmSection, elements.llmToggle, elements.llmDetails)
+        : null;
+}
+
+function toggleLlmDetails(section, toggle, details) {
+    const isExpanded = section.dataset.expanded === 'true';
+    const nextExpanded = !isExpanded;
+
+    section.dataset.expanded = nextExpanded ? 'true' : 'false';
+    details.style.display = nextExpanded ? 'block' : 'none';
+    toggle.textContent = nextExpanded ? 'Show Less' : 'Show More';
+}
+
+function buildLlmPreview(verdict, reasons, redFlags, evidence) {
+    const previewReasons = reasons.slice(0, LLM_PREVIEW_REASON_COUNT);
+    const previewParts = [];
+
+    if (previewReasons.length) {
+        previewParts.push(previewReasons.join(' '));
+    }
+
+    if (redFlags.length) {
+        previewParts.push(`${redFlags.length} red flag${redFlags.length > 1 ? 's' : ''} detected.`);
+    }
+
+    if (evidence) {
+        previewParts.push(truncateText(evidence, LLM_EVIDENCE_PREVIEW_LENGTH));
+    }
+
+    if (!previewParts.length) {
+        return `${formatLabel(verdict)} analysis available.`;
+    }
+
+    return previewParts.join(' ');
+}
+
+function truncateText(value, maxLength) {
+    if (!value || value.length <= maxLength) {
+        return value;
+    }
+
+    return `${value.slice(0, maxLength).trimEnd()}...`;
+}
+
+function formatLabel(value) {
+    if (!value) {
+        return '-';
+    }
+
+    return value
+        .split('_')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+}
+
+function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = value;
+    return div.innerHTML;
 }
 
 function initBatchDetect() {
@@ -184,6 +387,9 @@ function initBatchDetect() {
             });
             
             const result = await response.json();
+            if (!response.ok || result.error || result.detail) {
+                throw new Error(result.detail || result.error || 'Batch detection failed');
+            }
             displayBatchResult(result, texts);
         } catch (error) {
             alert('Error: ' + error.message);
@@ -265,6 +471,9 @@ function initTrain() {
             });
             
             const result = await response.json();
+            if (!response.ok || result.error || result.detail) {
+                throw new Error(result.detail || result.error || 'Training failed');
+            }
             displayTrainResult(result);
             loadModelInfo();
         } catch (error) {
@@ -319,6 +528,9 @@ function initFeatures() {
             });
             
             const result = await response.json();
+            if (!response.ok || result.error || result.detail) {
+                throw new Error(result.detail || result.error || 'Feature extraction failed');
+            }
             displayFeaturesResult(result);
         } catch (error) {
             alert('Error: ' + error.message);

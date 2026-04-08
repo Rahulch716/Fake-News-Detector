@@ -88,8 +88,39 @@
                             <div class="red-flags" id="redFlags"></div>
                         </div>
                         <div class="detail-section" id="llmSection" style="display: none;">
-                            <h3>LLM Analysis</h3>
-                            <p id="llmAnalysis">-</p>
+                            <div class="llm-header">
+                                <h3>LLM Analysis</h3>
+                                <button type="button" class="llm-toggle" id="llmToggle" style="display: none;">Show More</button>
+                            </div>
+                            <div class="llm-summary">
+                                <div class="llm-stat">
+                                    <span class="llm-stat-label">Verdict</span>
+                                    <span class="llm-stat-value llm-verdict" id="llmVerdict">-</span>
+                                </div>
+                                <div class="llm-stat">
+                                    <span class="llm-stat-label">Confidence</span>
+                                    <span class="llm-stat-value" id="llmConfidence">-</span>
+                                </div>
+                            </div>
+                            <p class="llm-preview" id="llmPreview">-</p>
+                            <div class="llm-details" id="llmDetails">
+                            <div class="llm-block" id="llmReasonsBlock">
+                                <h4>Reasons</h4>
+                                <ul class="llm-list" id="llmReasons"></ul>
+                            </div>
+                            <div class="llm-block" id="llmRedFlagsBlock">
+                                <h4>Red Flags</h4>
+                                <div class="red-flags" id="llmRedFlags"></div>
+                            </div>
+                            <div class="llm-block" id="llmEvidenceBlock">
+                                <h4>Supporting Evidence</h4>
+                                <p class="llm-evidence" id="llmEvidence">-</p>
+                            </div>
+                            <div class="llm-block" id="llmRawBlock" style="display: none;">
+                                <h4>Raw Response</h4>
+                                <pre class="llm-raw" id="llmAnalysis">-</pre>
+                            </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -5,6 +5,7 @@ import json
 class LLMDetector:
     def __init__(self, config: Optional[dict] = None):
         self.config = config or {}
+        self.provider = self.config.get("provider", "openai")
         self.model_name = self.config.get("model", "gpt-3.5-turbo")
         self.temperature = self.config.get("temperature", 0.3)
         self.max_tokens = self.config.get("max_tokens", 500)
@@ -13,13 +14,22 @@ class LLMDetector:
         self._initialize_client()
 
     def _initialize_client(self):
-        if self.api_key:
-            try:
+        if not self.api_key:
+            return
+
+        try:
+            if self.provider == "openai":
                 from openai import OpenAI
 
                 self.client = OpenAI(api_key=self.api_key)
-            except Exception:
-                pass
+
+            elif self.provider == "gemini":
+                from google import genai
+
+                self.client = genai.Client(api_key=self.api_key)
+
+        except Exception as e:
+            print("LLM init error:", e)
 
     def is_available(self) -> bool:
         return self.client is not None
@@ -36,38 +46,55 @@ class LLMDetector:
             }
         prompt = self._build_prompt(text, context)
         try:
-            response = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a fake news detection expert. Analyze the given news article and determine if it appears to be real or fake. Provide a detailed analysis with confidence level.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=self.temperature,
-                max_tokens=self.max_tokens,
-            )
-            result = response.choices[0].message.content
+            if self.provider == "openai":
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are a fake news detection expert. Analyze the given news article and determine if it appears to be real or fake. Provide a detailed analysis with confidence level.",
+                        },
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=self.temperature,
+                    max_tokens=self.max_tokens,
+                )
+                result = response.choices[0].message.content
+            elif self.provider == "gemini":
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt,
+                )
+                result = response.text
             return self._parse_response(result)
         except Exception as e:
             return {"available": True, "error": str(e), "analysis": ""}
 
     def _build_prompt(self, text: str, context: Optional[str] = None) -> str:
         context_str = f"\n\nAdditional context: {context}" if context else ""
-        return f"""Analyze the following news article and determine if it is likely real or fake.
 
-Article:
-{text}{context_str}
+        return f"""
+                You are a fact-checking system.
 
-Provide your analysis in the following JSON format:
-{{
-    "verdict": "real" or "fake" or "uncertain",
-    "confidence": 0.0-1.0,
-    "reasons": ["reason1", "reason2", ...],
-    "red_flags": ["flag1", "flag2", ...] if any,
-    "supporting_evidence": "brief explanation"
-}}"""
+                Analyze this news:
+
+                {text}{context_str}
+
+                Instructions:
+                - Be precise and objective
+                - Do not add extra explanation outside JSON
+                - If unsure, return "uncertain"
+
+                Return ONLY valid JSON:
+
+                {{
+                "verdict": "real/fake/uncertain",
+                "confidence": 0.0-1.0,
+                "reasons": [],
+                "red_flags": [],
+                "supporting_evidence": ""
+                }}
+                """
 
     def _parse_response(self, response: str) -> Dict:
         try:
@@ -75,7 +102,9 @@ Provide your analysis in the following JSON format:
             json_end = response.rfind("}") + 1
             if json_start != -1 and json_end != 0:
                 json_str = response[json_start:json_end]
-                return json.loads(json_str)
+                parsed = json.loads(json_str)
+                parsed.setdefault("available", True)
+                return parsed
         except Exception:
             pass
         return {
@@ -88,7 +117,9 @@ Provide your analysis in the following JSON format:
     def batch_analyze(self, texts: List[str]) -> List[Dict]:
         return [self.analyze_news(text) for text in texts]
 
-    def verify_claim(self, claim: str, search_results: Optional[List[str]] = None) -> Dict:
+    def verify_claim(
+        self, claim: str, search_results: Optional[List[str]] = None
+    ) -> Dict:
         if not self.is_available():
             return {
                 "available": False,
@@ -184,7 +215,9 @@ class RuleBasedDetector:
                 break
         score = max(0.0, min(1.0, score))
         return {
-            "verdict": "fake" if score < 0.4 else "real" if score > 0.6 else "uncertain",
+            "verdict": (
+                "fake" if score < 0.4 else "real" if score > 0.6 else "uncertain"
+            ),
             "confidence": abs(score - 0.5) * 2,
             "red_flags": red_flags,
             "score": score,

@@ -383,9 +383,121 @@ select:focus {
     letter-spacing: 0.05em;
 }
 
+.llm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.llm-header h3 {
+    margin-bottom: 0;
+}
+
+.llm-toggle {
+    border: 1px solid var(--gray-300);
+    background: var(--white);
+    color: var(--gray-700);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.llm-toggle:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
 .detail-section p {
     font-size: 15px;
     color: var(--gray-800);
+}
+
+.llm-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.llm-preview {
+    color: var(--gray-700);
+    margin-bottom: 14px;
+    line-height: 1.7;
+}
+
+.llm-stat {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+}
+
+.llm-stat-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.llm-stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.llm-verdict.real {
+    color: var(--success);
+}
+
+.llm-verdict.fake {
+    color: var(--danger);
+}
+
+.llm-verdict.uncertain {
+    color: var(--warning);
+}
+
+.llm-block + .llm-block {
+    margin-top: 16px;
+}
+
+.llm-block h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.llm-list {
+    padding-left: 20px;
+    color: var(--gray-800);
+    display: grid;
+    gap: 8px;
+}
+
+.llm-evidence {
+    line-height: 1.7;
+}
+
+.llm-raw {
+    background: var(--gray-100);
+    border-radius: var(--radius);
+    padding: 12px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 12px;
+    color: var(--gray-700);
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .red-flags {

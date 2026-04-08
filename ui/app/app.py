@@ -11,6 +11,7 @@ app = Flask(
 )
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000/api/v1")
+API_TIMEOUT = int(os.getenv("API_TIMEOUT", "90"))
 
 
 @app.route("/")
@@ -35,9 +36,9 @@ def detect():
                 "use_rules": use_rules,
                 "use_llm": use_llm,
             },
-            timeout=30,
+            timeout=API_TIMEOUT,
         )
-        return jsonify(response.json())
+        return jsonify(response.json()), response.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -55,7 +56,7 @@ def train():
             json={"texts": texts, "labels": labels, "algorithm": algorithm},
             timeout=120,
         )
-        return jsonify(response.json())
+        return jsonify(response.json()), response.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -69,9 +70,9 @@ def batch_detect():
         response = requests.post(
             f"{API_BASE_URL}/batch-detect",
             json={"texts": texts},
-            timeout=60,
+            timeout=API_TIMEOUT,
         )
-        return jsonify(response.json())
+        return jsonify(response.json()), response.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -85,9 +86,9 @@ def extract_features():
         response = requests.post(
             f"{API_BASE_URL}/extract-features",
             json={"text": text},
-            timeout=30,
+            timeout=API_TIMEOUT,
         )
-        return jsonify(response.json())
+        return jsonify(response.json()), response.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -96,7 +97,7 @@ def extract_features():
 def model_info():
     try:
         response = requests.get(f"{API_BASE_URL}/model-info", timeout=10)
-        return jsonify(response.json())
+        return jsonify(response.json()), response.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -105,7 +106,7 @@ def model_info():
 def health():
     try:
         response = requests.get(f"{API_BASE_URL}/health", timeout=10)
-        return jsonify(response.json())
+        return jsonify(response.json()), response.status_code
     except Exception as e:
         return jsonify({"status": "unhealthy", "error": str(e)}), 500
 

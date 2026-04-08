@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.svm import LinearSVC
+from sklearn.svm import LinearSVC, SVC
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import (
     accuracy_score,
@@ -66,7 +66,9 @@ class FakeNewsClassifier:
         elif algorithm == "naive_bayes":
             classifier = MultinomialNB(alpha=0.1)
         elif algorithm == "svm":
-            classifier = LinearSVC(C=1.0, class_weight="balanced", max_iter=2000)
+            classifier = SVC(
+                C=1.0, class_weight="balanced", max_iter=2000, probability=True
+            )
         elif algorithm == "gradient_boost":
             classifier = GradientBoostingClassifier(
                 n_estimators=100,
